@@ -39,7 +39,7 @@ const data = [
     f3: 'a1',
     f4: 'x1',
     num: 6
-  },
+  }
   // {
   //   f1: '技术部',
   //   f2: '',
@@ -54,11 +54,18 @@ const theMap = ref(null)
 // 纵向分组字段1
 const List1 = ['技术部', '开发部']
 // 纵向分组字段2
-const List2 = [ '2018', '2019', '2020', '2021',]
+const List2 = ['2018', '2019', '2020', '2021']
 // 横向分组字段1
 const List3 = ['a1', 'a2', 'a3', 'a4', 'a5']
 // 横向分组字段2
 const List4 = ['x1', 'x2']
+
+//  纵1，横1  ； 纵1，纵2，横1  ； 纵1，横1，横2   ；纵1，纵2，横1，横2
+
+const type = {
+  col: [1,2],
+  row: [1,2]
+}
 
 const transData = (data: any) => {
   let obj: any = {}
@@ -81,9 +88,27 @@ const transData = (data: any) => {
     console.log(list, List3, item.f3)
     obj[list.join(',')] = item.num
   })
-  return obj;
+  return obj
 }
-createArr.value = Array.from({ length: List3.length * (List4.length + 1) })
+
+const createArrFun = () => {
+  if(type.col.length===1 && type.row.length===1){
+    return Array.from({ length: List3.length + 1 })
+  }
+  if(type.col.length===1 && type.row.length===2){
+    return Array.from({ length: List3.length * (List4.length + 1) })
+  }
+  if(type.col.length===2 && type.row.length===1){
+    return Array.from({ length: List3.length + 1  })
+  }
+  if(type.col.length===2 && type.row.length===2){
+    return Array.from({ length: List3.length * (List4.length + 1)  })
+  }
+  
+}
+// createArr.value =  createArrFun();
+
+
 theMap.value = transData(data)
 console.log(theMap.value, 'theMap.value', transData(data))
 
@@ -113,29 +138,46 @@ const getPath = (num1: number, num2: number, num3: number) => {
   <div>
     <table>
       <tr>
-        <td colspan="2" rowspan="2">\</td>
-        <td :colspan="List4.length + 1" v-for="(item, index) in List3">{{ item }}</td>
-        <td rowspan="2">总计</td>
+        <td :colspan="type.col.length" :rowspan="type.row.length">\</td>
+        <td :colspan="type.row.length <= 1 ? 1 : List4.length + 1" v-for="(item, index) in List3">
+          {{ item }}
+        </td>
+        <td :rowspan="type.row.length">总计da</td>
       </tr>
-      <tr>
+      <tr v-if="type.row.length>1">
         <template v-for="(itemD, indexD) in List3">
           <td v-for="(item, index) in List4">{{ item }}</td>
           <td>总计</td>
         </template>
       </tr>
       <template v-for="(itemW, indexW) in List1">
-        <tr v-for="(item, index) in List2">
-          <td v-if="index === 0" :rowspan="List2.length + 1">{{ itemW }}</td>
+        <template v-if="type.col.length>1">
+          <tr v-for="(item, index) in List2">
+          <td v-if="index === 0" :rowspan="type.col.length>=1? List2.length + 1 : 1">{{ itemW }}</td>
           <td>{{ item }}</td>
           <!-- <td v-for="(itemA, indexA) in deptList">{{itemA}}</td> ${indexW+1}-${index+1}- -->
-          <td v-for="(itemD, indexD) in createArr">
+          <td v-for="(itemD, indexD) in createArrFun()">
             {{ theMap ? theMap[getPath(indexW + 1, index + 1, indexD + 1).path] : '' }}
           </td>
           <td>总（计算）</td>
         </tr>
+        </template>
+
+        <template v-else>
+          <tr >
+          <td >{{ itemW }}</td>
+          <!-- <td v-for="(itemA, indexA) in deptList">{{itemA}}</td> ${indexW+1}-${index+1}- -->
+          <td v-for="(itemD, indexD) in createArrFun()">
+            1
+            <!-- {{ theMap ? theMap[getPath(indexW + 1, index + 1, indexD + 1).path] : '' }} -->
+          </td>
+          <td>总（计算）</td>
+        </tr>
+        </template>
+
         <tr>
           <td>总计</td>
-          <td v-for="(itemD, indexD) in createArr">计算</td>
+          <td v-for="(itemD, indexD) in createArrFun()">计算</td>
           <td>计算</td>
         </tr>
       </template>
