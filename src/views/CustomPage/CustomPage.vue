@@ -1,6 +1,63 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import UiContentCard from '../UI/UiContentCard.vue'
+import { getCustomList } from './mock'
+
+const configCustomTable = ref({
+  default: [
+    {
+      label: '姓名',
+      prop: 'name'
+    },
+
+    {
+      label: '备注名',
+      prop: 'otherName'
+    },
+    {
+      label: '手机号',
+      prop: 'phone',
+      width: '120'
+    },
+    {
+      label: '微信号',
+      prop: 'vxNumber'
+    },
+    {
+      label: '年龄',
+      prop: 'birthYear'
+    },
+    {
+      label: '职业',
+      prop: 'occupation'
+    },
+    {
+      label: '地址',
+      prop: 'address'
+    },
+    {
+      label: '描述',
+      prop: 'description'
+    },
+    {
+      label: '健康状况',
+      prop: 'disease'
+    },
+    {
+      label: '体重',
+      prop: 'weight'
+    },
+    {
+      label: '身高',
+      prop: 'height'
+    },
+    {
+      label: '创建日期',
+      prop: 'createDate'
+    }
+  ]
+})
+const customerList = ref([])
 
 const tableData = [
   {
@@ -42,12 +99,19 @@ const handleEdit = () => {}
 const handleDelete = () => {}
 
 const inputMsg = ref(undefined)
+
+onMounted(() => {
+  getCustomList((res: any) => {
+    console.log(res)
+    customerList.value = res.data
+  })
+})
 </script>
 
 <template>
   <UiContentCard>
     <div>
-      <el-input type="number" v-model="inputMsg" />
+      <el-input v-model="inputMsg" />
       <el-button
         @click="
           () => {
@@ -55,20 +119,35 @@ const inputMsg = ref(undefined)
             const formData = {
               customerId: inputMsg
             }
-            myfetch(formData);
+            myfetch(formData)
           }
         "
         >查询</el-button
       >
+      <el-button @click="() => {}">自定义设置</el-button>
     </div>
     <div class="a1">
-      1
-      <el-table :data="tableData" style="width: 100%" class="table">
-        <el-table-column prop="date" label="Date" width="180" />
-        <el-table-column prop="name" label="Name" width="180" />
+      <el-table :data="customerList" style="width: 100%" class="table" stripe>
+        <el-table-column fixed type="index" label="序号" width="60" />
+        <template v-for="item in configCustomTable.default">
+          <el-table-column
+            v-if="item.prop !== 'phone'"
+            :prop="item.prop"
+            :label="item.label"
+            :width="item.width ? item.width : ''"
+          />
+          <el-table-column v-if="item.prop === 'phone'" :label="item.label" :width="item.width ? item.width : ''">
+            <template #default="scope"  >
+              <div>
+                <div v-for="phoneText in scope.row.phone">{{ phoneText }}</div>
+              </div>
+            </template>
+          </el-table-column>
+        </template>
         <el-table-column prop="address" label="Address" />
-        <el-table-column prop="name" label="操作" width="180">
+        <el-table-column fixed="right" label="操作" width="220" align="center">
           <el-button size="small" @click="handleEdit()"> 编辑 </el-button>
+          <el-button size="small" @click="handleEdit()"> 详情 </el-button>
           <el-button size="small" type="danger" @click="handleDelete()"> 删除 </el-button>
         </el-table-column>
       </el-table>
