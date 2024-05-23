@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import UiContentCard from '../UI/UiContentCard.vue'
+import CustomDetail from './CustomDetail/index.vue'
 import { getCustomList } from './mock'
-
+import type { Customer } from './CustomDetail/index.vue'
 const configCustomTable = ref({
   default: [
     {
@@ -59,6 +60,9 @@ const configCustomTable = ref({
 })
 const customerList = ref([])
 
+// 弹窗相关
+const dialogVisible = ref(false)
+
 const tableData = [
   {
     date: '2016-05-03',
@@ -98,7 +102,15 @@ const myfetch = (formData: any) => {
 const handleEdit = () => {}
 const handleDelete = () => {}
 
+const currentFormMsg = ref<Customer | null>(null)
+
 const inputMsg = ref(undefined)
+
+const handleDetail = (data: Customer) => {
+  currentFormMsg.value = data
+  dialogVisible.value = true
+  console.log(dialogVisible.value, 'dialogVisible.value')
+}
 
 onMounted(() => {
   getCustomList((res: any) => {
@@ -136,8 +148,12 @@ onMounted(() => {
             :label="item.label"
             :width="item.width ? item.width : ''"
           />
-          <el-table-column v-if="item.prop === 'phone'" :label="item.label" :width="item.width ? item.width : ''">
-            <template #default="scope"  >
+          <el-table-column
+            v-if="item.prop === 'phone'"
+            :label="item.label"
+            :width="item.width ? item.width : ''"
+          >
+            <template #default="scope">
               <div>
                 <div v-for="phoneText in scope.row.phone">{{ phoneText }}</div>
               </div>
@@ -146,13 +162,25 @@ onMounted(() => {
         </template>
         <el-table-column prop="address" label="Address" />
         <el-table-column fixed="right" label="操作" width="220" align="center">
-          <el-button size="small" @click="handleEdit()"> 编辑 </el-button>
-          <el-button size="small" @click="handleEdit()"> 详情 </el-button>
-          <el-button size="small" type="danger" @click="handleDelete()"> 删除 </el-button>
+          <template #default="scope">
+            <el-button size="small" @click="handleEdit()"> 编辑 </el-button>
+            <el-button size="small" @click="handleDetail(scope.row)"> 详情 </el-button>
+            <el-button size="small" type="danger" @click="handleDelete()"> 删除 </el-button>
+          </template>
         </el-table-column>
       </el-table>
     </div>
   </UiContentCard>
+  <div v-if="dialogVisible">
+    <CustomDetail
+      :formData="currentFormMsg"
+      @setDialogVisible="
+        (isVisible) => {
+          dialogVisible = isVisible
+        }
+      "
+    />
+  </div>
 </template>
 
 <style scoped>
