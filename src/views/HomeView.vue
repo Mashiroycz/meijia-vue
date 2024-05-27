@@ -6,6 +6,7 @@ import  CustomTable2 from "@/components/CustomTable2.vue";
 <template>
   <main>
     <CustomTable></CustomTable>
-    <CustomTable2></CustomTable2>
+    <!-- <CustomTable2></CustomTable2> -->
+    <CustomTable3></CustomTable3>
   </main>
 </template>

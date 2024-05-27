@@ -57,6 +57,12 @@ const handleClose = (key: string, keyPath: string[]) => {
       <el-icon><setting /></el-icon>
       <template #title>营销管理</template>
     </el-menu-item>
+    <RouterLink to="/workFlow">
+      <el-menu-item index="6">
+        <el-icon><setting /></el-icon>
+        <template #title>工作流</template>
+      </el-menu-item>
+    </RouterLink>
   </el-menu>
 </template>
 
